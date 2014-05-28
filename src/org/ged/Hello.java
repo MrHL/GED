@@ -2,7 +2,7 @@ package org.ged;
 /**
  * Test !
  * @author JavaLuSir
- *https://github.com/MrHL/GED.git
+ * object £Õ£Ò£Ì¡¡£º https://github.com/MrHL/GED.git
  */
 public class Hello {
 
