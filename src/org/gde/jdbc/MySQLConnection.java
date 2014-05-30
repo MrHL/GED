@@ -3,6 +3,7 @@ package org.gde.jdbc;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.gde.interfaces.IDBConnection;
 
@@ -37,6 +38,21 @@ public class MySQLConnection implements IDBConnection{
 		}
 		return null;
 	}
-	
+	@Override
+	public Connection getConnInstance() {
+		try {
+			Class.forName(driver);
+			Connection conn = DriverManager.getConnection(dbUrl,user,pass);
+			if(conn!=null)
+				return conn;
+			else
+				throw new SQLException("connection object is null");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}	
 
 }

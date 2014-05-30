@@ -4,12 +4,21 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Time;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.gde.interfaces.IDBConnection;
 import org.gde.interfaces.IGenerate;
+import org.gde.jdbc.MySQLConnection;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -37,6 +46,7 @@ public class EntityGenerator implements IGenerate{
 	 * @throws IOException  TemplateException, IOException
 	 */
 	public void generate(String path) {
+		
 		OutputStream os = null;
 		OutputStreamWriter ow = null;
 		try{
@@ -52,9 +62,45 @@ public class EntityGenerator implements IGenerate{
 		 Map<String,String> listmap = new LinkedHashMap<String,String>();
 		 //here we should read from database  following 
 		 //the map key is database field the value is decide to field type dynamic generate 
-		 listmap.put("id", "String");
+		 IDBConnection db = new MySQLConnection("127.0.0.1", "root", "1234");
+		 Connection conn = db.getConnInstance();
+			try {
+				Statement stmt = conn.createStatement();
+				
+				ResultSet rs = stmt.executeQuery("select * from user");
+				ResultSetMetaData rsmd = rs.getMetaData();
+				
+				String type="";
+				for(int i=1;i<=rsmd.getColumnCount();i++){
+					switch (rsmd.getColumnType(i)) {
+					case Types.VARCHAR:
+						type="String";
+						break;
+					case Types.DATE:
+						type="Date";
+						break;
+					case Types.TIMESTAMP:
+						type="Date";
+						break;
+					case Types.TIME:
+						type="Date";
+						break;
+					case Types.INTEGER:
+						type="int";
+						break;
+					default:
+						type="String";
+					}
+					String colname = rsmd.getColumnName(i);
+					listmap.put(colname, type);
+				}
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			
+/*		 listmap.put("id", "String");
 		 listmap.put("name", "String");
-		 listmap.put("sex", "String");
+		 listmap.put("sex", "String");*/
 		 
 		 list.add(listmap);
 		 //package is modifiedable depends FileOutput path
@@ -81,7 +127,7 @@ public class EntityGenerator implements IGenerate{
 	//main invoke test
 	public static void main(String[] args) throws TemplateException, IOException {
 		EntityGenerator fwd = new EntityGenerator();
-		fwd.generate("D:/entity.java");
+		fwd.generate("D:/Entity.java");
 	}
 
 }
