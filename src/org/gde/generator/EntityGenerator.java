@@ -1,4 +1,4 @@
-package org.gde.base;
+package org.gde.generator;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,22 +9,24 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.gde.interfaces.IGenerate;
+
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 /**
- * FreemarkerWordDemo is used to Generate entity file by template.
+ * EntityGenerator is used to Generate entity file by template.
  * @author JavaLuSir
  *
  */
-public class FreeMarkerGenerate {
+public class EntityGenerator implements IGenerate{
 	//Configure of freemarker Configuration
 	private Configuration conf = null;
 	/**
-	 * construct
+	 * constructor
 	 */
-	public FreeMarkerGenerate() {
+	public EntityGenerator() {
 		conf=new Configuration();
 		conf.setDateFormat("utf-8");
 	}
@@ -32,16 +34,19 @@ public class FreeMarkerGenerate {
 	/**
 	 * write a File to FileSystem
 	 * @throws TemplateException
-	 * @throws IOException
+	 * @throws IOException  TemplateException, IOException
 	 */
-	public void WriteDocFile() throws TemplateException, IOException{
+	public void generate(String path) {
+		OutputStream os = null;
+		OutputStreamWriter ow = null;
+		try{
 		LinkedHashMap<String, Object> map = new LinkedHashMap<String, Object>();
 		 //load model file
-		 conf.setClassForTemplateLoading(FreeMarkerGenerate.class, "/");
+		 conf.setClassForTemplateLoading(EntityGenerator.class, "/");
 		 Template template = conf.getTemplate("model");
 		 //set output file path must modifiedable
-		 OutputStream os = new FileOutputStream("D:/Entity.java");
-		 OutputStreamWriter ow = new OutputStreamWriter(os);
+		 os = new FileOutputStream(path);
+		 ow = new OutputStreamWriter(os);
 		 
 		 List<Map<String,String>> list = new ArrayList<Map<String,String>>();
 		 Map<String,String> listmap = new LinkedHashMap<String,String>();
@@ -59,14 +64,24 @@ public class FreeMarkerGenerate {
 		 map.put("entityName","Entity");
 		 
 		 template.process(map, ow);//generate java file
-		 ow.close();
-		 os.close();
+		}catch(TemplateException e){
+			e.printStackTrace();
+		}catch(IOException e){
+			e.printStackTrace();
+		}finally{
+			try {
+				ow.close();
+				os.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	//main invoke test
 	public static void main(String[] args) throws TemplateException, IOException {
-		FreeMarkerGenerate fwd = new FreeMarkerGenerate();
-		fwd.WriteDocFile();
+		EntityGenerator fwd = new EntityGenerator();
+		fwd.generate("D:/entity.java");
 	}
 
 }
